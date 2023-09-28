@@ -131,18 +131,15 @@ lista_t *lista_insertar_en_posicion(lista_t *lista, void *elemento,
 	}
 
 	if((lista->nodo_inicio == NULL) || (lista->tamanio == 0) || posicion >= lista->tamanio){
-		lista= lista_insertar(lista, elemento);		
+		return lista_insertar(lista, elemento);
 	}
 
 	if(posicion == 0){
-		lista= lista_insertar_inicio(lista, elemento);
+		return lista_insertar_inicio(lista, elemento);
 	}
 
-	if(posicion < lista->tamanio){
-		lista= lista_insertar_medio(lista, elemento, posicion);
-	}
 
-	return lista;	
+	return lista_insertar_medio(lista, elemento, posicion);
 }
 
 void *lista_quitar(lista_t *lista)
@@ -157,19 +154,21 @@ void *lista_quitar(lista_t *lista)
 		elemento_eliminado= lista->nodo_inicio->elemento;
 		nodo_destruir(lista->nodo_inicio);
 		lista->tamanio--;
+		lista->nodo_inicio = NULL;
 		return elemento_eliminado;
 	}
 
 	nodo_t *aux= lista->nodo_inicio;
 
-	while(aux->siguiente != NULL){
+	while(aux->siguiente->siguiente != NULL){
 		aux= aux->siguiente;
 	}
 
-	elemento_eliminado= aux->elemento;
+	elemento_eliminado= aux->siguiente->elemento;
 
-	nodo_destruir(aux);
+	nodo_destruir(aux->siguiente);
 	lista->tamanio--;
+	aux->siguiente = NULL;
 	
 	return elemento_eliminado;
 }
@@ -322,7 +321,7 @@ bool lista_iterador_tiene_siguiente(lista_iterador_t *iterador)
 		return false;
 	}
 
-	return (iterador->nodo_actual->siguiente != NULL);
+	return (iterador->nodo_actual != NULL);
 }
 
 bool lista_iterador_avanzar(lista_iterador_t *iterador)
@@ -339,7 +338,7 @@ bool lista_iterador_avanzar(lista_iterador_t *iterador)
 
 void *lista_iterador_elemento_actual(lista_iterador_t *iterador)
 {
-	if(iterador == NULL || iterador->lista == NULL || iterador->nodo_actual == NULL || iterador->nodo_actual->siguiente == NULL ){
+	if(iterador == NULL || iterador->lista == NULL || iterador->nodo_actual == NULL){
 		return NULL;
 	}
 
@@ -358,7 +357,21 @@ void lista_iterador_destruir(lista_iterador_t *iterador)
 size_t lista_con_cada_elemento(lista_t *lista, bool (*funcion)(void *, void *),
 			       void *contexto)
 {
-	return 0;
+	if(!lista || !funcion)
+		return 0;
+
+	size_t contador = 0;
+	nodo_t *actual = lista->nodo_inicio;
+
+	while (actual != NULL) {
+		contador++;
+
+		if(funcion(actual->elemento, contexto) == false)
+			return contador;
+		actual = actual->siguiente;
+	}
+
+	return contador;
 }
 
 
