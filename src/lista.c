@@ -168,7 +168,7 @@ void *lista_quitar(lista_t *lista)
 
 	elemento_eliminado= aux->elemento;
 
-	nodo_destruir(aux->siguiente);
+	nodo_destruir(aux);
 	lista->tamanio--;
 	
 	return elemento_eliminado;
