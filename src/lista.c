@@ -201,6 +201,7 @@ void *lista_quitar_de_posicion(lista_t *lista, size_t posicion)
 	if(anterior->siguiente != NULL){
 		while(pos != (posicion-1)){
 			anterior= anterior->siguiente;
+			pos++;
 		}
 		nodo_t *eliminado= anterior->siguiente;
 		elemento_eliminado= eliminado->elemento;
