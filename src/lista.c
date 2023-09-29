@@ -149,7 +149,7 @@ void *lista_quitar(lista_t *lista)
 		return NULL;
 	}
 
-	void* elemento_eliminado;
+	void* elemento_eliminado = NULL;
 
 	if(lista->tamanio == UN_ELEMENTO){
 		elemento_eliminado= lista->nodo_inicio->elemento;
@@ -159,18 +159,17 @@ void *lista_quitar(lista_t *lista)
 		return elemento_eliminado;
 	}
 
-	nodo_t *anterior= lista->nodo_inicio;
-	nodo_t *aux= lista->nodo_inicio->siguiente;
+	nodo_t *aux= lista->nodo_inicio;
 
-	while(aux->siguiente != NULL){
-		anterior= anterior->siguiente;		
-		aux= aux->siguiente;
+	if(aux->siguiente != NULL){
+		while(aux->siguiente->siguiente != NULL){	
+			aux= aux->siguiente;		
+		}
+		elemento_eliminado= aux->siguiente->elemento;
+		nodo_destruir(aux->siguiente);	
+		aux->siguiente= NULL;
+		lista->tamanio--;		
 	}
-
-	elemento_eliminado= aux->elemento;
-	nodo_destruir(aux);	
-	anterior->siguiente= NULL;
-	lista->tamanio--;
 	
 	return elemento_eliminado;
 }
@@ -181,44 +180,41 @@ void *lista_quitar_de_posicion(lista_t *lista, size_t posicion)
 		return NULL;
 	}
 
-	void* elemento_eliminado;
+	void* elemento_eliminado = NULL;
 
 	if(lista->tamanio == UN_ELEMENTO || posicion >= lista->tamanio){
-		elemento_eliminado= lista_quitar(lista);
-		return elemento_eliminado;
+		return lista_quitar(lista);;
 	}
 
 	if(posicion == 0){
-		elemento_eliminado= lista->nodo_inicio->elemento;
+
 		nodo_t *aux= lista->nodo_inicio;
-		lista->nodo_inicio= lista->nodo_inicio->siguiente;
+		lista->nodo_inicio= lista->nodo_inicio->siguiente;		
+		elemento_eliminado= aux->elemento;		
 		nodo_destruir(aux);
 		lista->tamanio--;
 		return elemento_eliminado;
 	}
 
-	size_t posicion_actual= 0;
-	nodo_t *nodo_anterior_al_eliminado= lista->nodo_inicio;
-	nodo_t *nodo_a_eliminar= lista->nodo_inicio->siguiente;
-
-	while(posicion_actual != (posicion-1)){
-		nodo_anterior_al_eliminado= nodo_anterior_al_eliminado->siguiente;
-		nodo_a_eliminar= nodo_a_eliminar->siguiente;
-		posicion_actual++;
+	size_t pos= 0;
+	nodo_t *anterior= lista->nodo_inicio;
+	if(anterior->siguiente != NULL){
+		while(pos != (posicion-1)){
+			anterior= anterior->siguiente;
+		}
+		nodo_t *eliminado= anterior->siguiente;
+		elemento_eliminado= eliminado->elemento;
+		anterior->siguiente= eliminado->siguiente;
+		nodo_destruir (eliminado);
+		lista->tamanio--;		
 	}
-
-	elemento_eliminado= nodo_a_eliminar->elemento;
-	nodo_anterior_al_eliminado->siguiente= nodo_a_eliminar->siguiente;
-
-	nodo_destruir(nodo_anterior_al_eliminado->siguiente);
-	lista->tamanio--;
 
 	return elemento_eliminado;
 }
 
 void *lista_elemento_en_posicion(lista_t *lista, size_t posicion)
 {
-	if(lista == NULL || posicion >= lista->tamanio){
+	if(lista == NULL || lista->nodo_inicio== NULL || posicion >= lista->tamanio){
 		return NULL;
 	}
 
