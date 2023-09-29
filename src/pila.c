@@ -27,7 +27,7 @@ size_t pila_tamanio(pila_t *pila)
 
 bool pila_vacia(pila_t *pila)
 {
-	return false;
+	return true;
 }
 
 void pila_destruir(pila_t *pila)

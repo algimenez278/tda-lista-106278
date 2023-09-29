@@ -38,6 +38,7 @@ nodo_t *crear_nodo(void* elemento){
 
 void nodo_destruir(nodo_t* nodo){
 
+	nodo->elemento = NULL;
 	free(nodo);
 }
 //y su destrucción
@@ -158,17 +159,18 @@ void *lista_quitar(lista_t *lista)
 		return elemento_eliminado;
 	}
 
-	nodo_t *aux= lista->nodo_inicio;
+	nodo_t *anterior= lista->nodo_inicio;
+	nodo_t *aux= lista->nodo_inicio->siguiente;
 
-	while(aux->siguiente->siguiente != NULL){
+	while(aux->siguiente != NULL){
+		anterior= anterior->siguiente;		
 		aux= aux->siguiente;
 	}
 
-	elemento_eliminado= aux->siguiente->elemento;
-
-	nodo_destruir(aux->siguiente);
+	elemento_eliminado= aux->elemento;
+	nodo_destruir(aux);	
+	anterior->siguiente= NULL;
 	lista->tamanio--;
-	aux->siguiente = NULL;
 	
 	return elemento_eliminado;
 }
@@ -216,14 +218,45 @@ void *lista_quitar_de_posicion(lista_t *lista, size_t posicion)
 
 void *lista_elemento_en_posicion(lista_t *lista, size_t posicion)
 {
-	//////////falta
-	return NULL;
+	if(lista == NULL || posicion >= lista->tamanio){
+		return NULL;
+	}
+
+	if(posicion == 0){
+		return lista->nodo_inicio->elemento;
+	}
+
+	nodo_t *nodo = lista->nodo_inicio;
+	size_t i=0;
+	while(i!=posicion){
+		nodo= nodo->siguiente;
+		i++;
+	}
+
+	return nodo->elemento;
 }
 
 void *lista_buscar_elemento(lista_t *lista, int (*comparador)(void *, void *),
 			    void *contexto)
 {
-	///////////falta
+	if(lista == NULL || comparador == NULL || lista->nodo_inicio == NULL){
+		return NULL;
+	}
+
+	if(lista->tamanio == UN_ELEMENTO){
+		if(comparador(lista->nodo_inicio->elemento, contexto) == 0){
+			return lista->nodo_inicio->elemento;
+		}
+	}
+
+	nodo_t *nodo = lista->nodo_inicio;
+	for(size_t i=0; i < lista->tamanio; i++){
+		if(comparador(nodo->elemento, contexto) == 0){
+			return nodo->elemento;
+		}
+		nodo= nodo->siguiente;
+	}
+
 	return NULL;
 }
 
@@ -233,7 +266,7 @@ void *lista_primero(lista_t *lista)
 		return NULL;
 	}
 
-	return &lista->nodo_inicio->elemento;
+	return lista->nodo_inicio->elemento;
 }
 
 void *lista_ultimo(lista_t *lista)
@@ -243,7 +276,7 @@ void *lista_ultimo(lista_t *lista)
 	}
 
 	if(lista->tamanio == UN_ELEMENTO){
-		return &lista->nodo_inicio->elemento;
+		return lista->nodo_inicio->elemento;
 	}
 
 	nodo_t *ultimo= lista->nodo_inicio;
@@ -251,7 +284,7 @@ void *lista_ultimo(lista_t *lista)
 		ultimo= ultimo->siguiente;
 	}
 
-	return &ultimo->elemento;
+	return ultimo->elemento;
 }
 
 bool lista_vacia(lista_t *lista)
@@ -295,6 +328,19 @@ void lista_destruir(lista_t *lista)
 
 void lista_destruir_todo(lista_t *lista, void (*funcion)(void *))
 {
+	if(lista == NULL || funcion == NULL || lista->nodo_inicio == NULL){
+		return;
+	}
+
+	nodo_t *aux;
+	while(!lista_vacia(lista)){
+		aux= lista->nodo_inicio;
+		funcion(aux->elemento);
+		lista->nodo_inicio = lista->nodo_inicio->siguiente;
+		nodo_destruir(aux);
+		lista->tamanio--;
+	}
+	free(lista);
 }
 
 /////////////////////////////////////////////////
