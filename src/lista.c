@@ -84,8 +84,12 @@ lista_t *lista_insertar_medio(lista_t *lista, void *elemento, size_t posicion){
 	}
 
 	nodo_t *anterior= lista->nodo_inicio;
-	for(size_t i=0; i<posicion; i++){
-		anterior= anterior->siguiente;
+	size_t i=0;
+	if(anterior->siguiente!= NULL){
+		while(i != (posicion-1)){
+			anterior= anterior->siguiente;
+			i++;
+		}		
 	}
 
 	nuevo->siguiente= anterior->siguiente;
@@ -328,7 +332,6 @@ void lista_destruir_todo(lista_t *lista, void (*funcion)(void *))
 	if(lista == NULL || funcion == NULL || lista->nodo_inicio == NULL){
 		return;
 	}
-
 	nodo_t *aux;
 	while(!lista_vacia(lista)){
 		aux= lista->nodo_inicio;
