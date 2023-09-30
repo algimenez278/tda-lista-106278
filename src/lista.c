@@ -22,10 +22,11 @@ struct lista_iterador {
 };
 
 ///// un nodo /////
+//PRE: -
+//POST: crea un nodo con el elemento enviado.
 nodo_t *crear_nodo(void* elemento){
 
 	nodo_t *nodo= calloc(1, sizeof (nodo_t));
-
 	if(nodo == NULL){
 		return NULL;
 	}
@@ -36,19 +37,31 @@ nodo_t *crear_nodo(void* elemento){
 	return nodo;
 }
 
+//PRE: -
+//POST:	libera la memoria reservada para un nodo.
 void nodo_destruir(nodo_t* nodo){
+
+	if(nodo == NULL){
+		return;
+	}
 
 	nodo->elemento = NULL;
 	free(nodo);
 }
-//y su destrucción
 
 
 //////INSERCIONES AL INICIO///
-
+//PRE: lista no debe ser NULL
+//observación: no hago el chequeo porque en el flujo de mi progama,
+//si utiliza esta función previamente se chequea que la lista no sea NULL.
+//POST: inserta un elemento en "la posicion 0", al inicio, de la lista.
 lista_t *lista_insertar_inicio(lista_t *lista, void *elemento){
 	
 	nodo_t *nuevo= crear_nodo(elemento);
+	if(nuevo == NULL){
+		return NULL;
+	}
+
 	nuevo->siguiente= lista->nodo_inicio;
 	lista->nodo_inicio= nuevo;
 	lista->tamanio++;
@@ -57,12 +70,17 @@ lista_t *lista_insertar_inicio(lista_t *lista, void *elemento){
 }
 
 //// AL FINAL///
+//PRE: lista no debe ser NULL
+//observación: no hago el chequeo porque en el flujo de mi progama,
+//si utiliza esta función previamente se chequea que la lista no sea NULL.
+//POST: inserta un elemento en "la ultima posicion", al final, de la lista.
 lista_t *lista_insertar_final(lista_t *lista, void *elemento){
 	
 	nodo_t *nuevo= crear_nodo(elemento);
 	if(nuevo == NULL){
 		return NULL;
 	}
+
 	nodo_t *ultimo= lista->nodo_inicio;
 
 	while(ultimo->siguiente != NULL){
@@ -76,6 +94,13 @@ lista_t *lista_insertar_final(lista_t *lista, void *elemento){
 }
 
 ////// AL MEDIO //////
+//PRE: lista no debe ser NULL, la posicion debe ser mayor a 0 y menor
+//		al tamanio de la lista
+//observación: no hago el chequeo porque en el flujo de mi progama,
+//si utiliza esta función previamente se chequea que la lista no sea NULL.
+//observación2: también por el flujo de mi programa, si utiliza esta función,
+//previamente se hicieron chequeos de que la posición es válida.
+//POST: inserta un elemento en la lista, en la posicion enviada.
 lista_t *lista_insertar_medio(lista_t *lista, void *elemento, size_t posicion){
 
 	nodo_t *nuevo= crear_nodo(elemento);
@@ -118,9 +143,7 @@ lista_t *lista_insertar(lista_t *lista, void *elemento)
 	}
 
 	if(lista->tamanio == 0){
-		lista->nodo_inicio = crear_nodo(elemento);
-		lista->tamanio++;
-		return lista;		
+		return lista_insertar_inicio(lista, elemento);		
 	}
 
 	lista= lista_insertar_final(lista, elemento);
@@ -329,9 +352,15 @@ void lista_destruir(lista_t *lista)
 
 void lista_destruir_todo(lista_t *lista, void (*funcion)(void *))
 {
-	if(lista == NULL || funcion == NULL || lista->nodo_inicio == NULL){
+	if(lista == NULL || lista->nodo_inicio == NULL){
 		return;
 	}
+
+	if(funcion == NULL){
+		lista_destruir(lista);
+		return;
+	}
+
 	nodo_t *aux;
 	while(!lista_vacia(lista)){
 		aux= lista->nodo_inicio;
