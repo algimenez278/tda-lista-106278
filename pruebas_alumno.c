@@ -34,5 +34,21 @@ int main() {
                "El elemento se encuentra en la pos correcta");
 
   lista_destruir(lista);
+
+  // otra
+
+  lista_t *lista1 = lista_crear();
+  lista_insertar(lista1, &n1);
+  lista_insertar_en_posicion(lista1, &n2, 17);
+  lista_insertar_en_posicion(lista1, &n3, 1);
+
+  pa2m_afirmar(lista_elemento_en_posicion(lista1, 1) == &n3,
+               "El elemento se encuentra en la pos correcta");
+  lista_quitar_de_posicion(lista1, 0);
+  pa2m_afirmar(lista_primero(lista1) == &n3,
+               "El elemento se encuentra en la pos correcta");
+
+  lista_destruir(lista1);
+
   return pa2m_mostrar_reporte();
 }
